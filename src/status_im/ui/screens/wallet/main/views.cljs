@@ -11,7 +11,8 @@
             [status-im.i18n :as i18n]
             [status-im.utils.listview :as lw]
             [status-im.utils.platform :as platform]
-            [status-im.ui.screens.wallet.main.styles :as st]))
+            [status-im.ui.screens.wallet.main.styles :as st]
+            [status-im.utils.money :as money]))
 
 (defn toolbar-title []
   [rn/view {:style st/toolbar-title-container}
@@ -31,6 +32,7 @@
                     :custom-content [toolbar-title]
                     :custom-action  [toolbar-buttons]}])
 
+;; TODO: USD conversion add
 (defn main-section []
   [rn/view {:style st/main-section}
    [rn/view {:style st/total-balance-container}
@@ -72,20 +74,34 @@
     [rn/view
      [asset-list-item row]]]))
 
-(defn asset-section []
-  (let [assets {"eth" {:currency :eth :amount 0.445}
-                "snt" {:currency :snt :amount 1}
-                "gno" {:currency :gno :amount 0.024794}}]
+(def assets-example-map
+  {"eth" {:currency :eth :amount 0.445}
+   "snt" {:currency :snt :amount 1}
+   "gno" {:currency :gno :amount 0.024794}})
+
+;; NOTE(oskarth): In development, replace assets with assets-example-map
+;; to check multiple assets being rendered
+(defn asset-section [eth]
+  (let [assets {"eth" {:currency :eth :amount eth}}]
     [rn/view {:style st/asset-section}
      [rn/text {:style st/asset-section-title} "Assets"]
      [rn/list-view {:dataSource      (lw/to-datasource assets)
                     :renderSeparator (when platform/ios? (render-separator-fn (count assets)))
                     :renderRow       render-row-fn}]]))
 
+(defn wallet->eth-balance [wallet]
+  (when-let [balance (:balance wallet)]
+    (money/wei->ether balance)))
+
+;; TODO(oskarth): Convert properly and calc value
+;; TODO(oskarth): Use last-value to calc past
+
 (defview wallet []
-  []
-  [rn/view {:style st/wallet-container}
-   [toolbar-view]
-   [rn/scroll-view
-    [main-section]
-    [asset-section]]])
+  (letsubs [wallet [:get :wallet]
+            prices [:get :prices]] ;; => {:from ETH, :to USD, :price 299.85, :last-day 303.3}
+           (let [eth (or (wallet->eth-balance wallet) "...")]
+      [rn/view {:style st/wallet-container}
+       [toolbar-view]
+       [rn/scroll-view
+        [main-section]
+        [asset-section eth]]])))

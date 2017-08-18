@@ -1,6 +1,7 @@
 (ns status-im.ui.screens.events
   (:require status-im.bots.handlers
             status-im.chat.handlers
+
             status-im.commands.handlers.jail
             status-im.commands.handlers.loading
             status-im.debug.handlers
@@ -15,6 +16,7 @@
             status-im.ui.screens.navigation
             status-im.ui.screens.profile.events
             status-im.ui.screens.qr-scanner.events
+            status-im.ui.screens.wallet.events
 
             [re-frame.core :refer [dispatch reg-fx]]
             [status-im.components.status :as status]
@@ -163,7 +165,9 @@
                   [:send-account-update-if-needed]
                   [:start-requesting-discoveries]
                   [:remove-old-discoveries!]
-                  [:set :creating-account? false]]}))
+                  [:set :creating-account? false]
+                  [:wallet-init]]}))
+
 
 (register-handler-fx
   :check-console-chat
