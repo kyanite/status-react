@@ -11,10 +11,10 @@ node {
   try {
 
     stage('Git & Dependencies') {
-      git([url: 'https://github.com/status-im/status-react.git', branch: env.BRANCH_NAME])
+      git([url: 'https://github.com/kyanite/status-react.git', branch: env.BRANCH_NAME])
       // Checkout master because used for iOS Plist version information
       sh 'git checkout -- .'
-      sh 'git checkout master' 
+      sh 'git checkout master'
       sh 'git checkout ' + env.BRANCH_NAME
       sh 'rm -rf node_modules'
       sh 'cp .env.jenkins .env'
@@ -31,7 +31,7 @@ node {
     stage('Build') {
       sh 'lein prod-build'
     }
-    
+
     // Android
     stage('Build (Android)') {
       sh 'cd android && ./gradlew assembleRelease'
