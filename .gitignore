@@ -79,3 +79,4 @@ status-dev-cli
 #ios
 ios/Pods
 ios/StatusIm.xcworkspace
+*.iml
